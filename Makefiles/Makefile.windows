@@ -1,7 +1,7 @@
 #build from Native 64 bit tools command prompt in the project root with
 #nmake -f Makefiles\Makefile.windows
 #Building with NV64 vendor can provide binary that at runtime works fine on both amd, nvidia and intel
-OPENCL_VENDOR=NV64 # NV, NV64, AMD, AMD64
+OPENCL_VENDOR=NV64 # NV, NV64, AMD, AMD64, INTEL
 
 !if "$(OPENCL_VENDOR)" == "NV"
 OPENCL_DIR="C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v5.5"
@@ -27,6 +27,12 @@ OPENCL_INC=$(OPENCL_DIR)\include
 OPENCL_LIB=$(OPENCL_DIR)\lib\x86_64\OpenCL.lib
 !endif
 
+!if "$(OPENCL_VENDOR)" == "INTEL"
+OPENCL_DIR="C:\Program Files (x86)\IntelSWTools\system_studio_2020\OpenCL\sdk"
+OPENCL_INC=$(OPENCL_DIR)\include
+OPENCL_LIB=$(OPENCL_DIR)\lib\x86\OpenCL.lib
+!endif
+
 LIBS=$(OPENCL_LIB) Ws2_32.lib 
 INCLUDES=-I$(OPENCL_INC)
 DEFINES=-DWINDOWS -DCURL_STATICLIB -D_CRT_SECURE_NO_DEPRECATE
@@ -46,7 +52,7 @@ xxd.exe: xxd.cpp
 
 memtestCL_kernels.clh: memtestCL_kernels.cl xxd.exe
 	$(CPP) memtestCL_kernels.cl > memtestCL_kernels
-	xxd -i memtestCL_kernels > memtestCL_kernels.clh
+	xxd.exe -i memtestCL_kernels > memtestCL_kernels.clh
 	del memtestCL_kernels
 
 memtestCL_core.obj: memtestCL_core.cpp memtestCL_core.h memtestCL_kernels.clh
